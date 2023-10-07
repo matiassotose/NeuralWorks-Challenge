@@ -75,8 +75,10 @@ try:
     create_table_query = '''CREATE TABLE trips
             (ID                     SERIAL                  PRIMARY KEY,
             REGION                  TEXT                    NOT NULL,
-            ORIGIN_COORD            GEOMETRY(POINT)         NOT NULL,
-            DESTINATION_COORD       GEOMETRY(POINT)         NOT NULL,
+            ORIGIN_X                NUMERIC                 NOT NULL,
+            ORIGIN_Y                NUMERIC                 NOT NULL,
+            DESTINATION_X           NUMERIC                 NOT NULL,
+            DESTINATION_Y           NUMERIC                 NOT NULL,
             DATETIME                TIMESTAMP               NOT NULL,
             DATASOURCE              TEXT                    NOT NULL); '''
     
