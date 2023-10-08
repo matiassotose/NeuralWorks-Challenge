@@ -5,15 +5,37 @@ import csv
 from models.trip import Trip
 from datetime import datetime
 import redis
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
-db_uri = 'postgresql://postgres:12345@localhost:5432/neuralworks'
+if os.getenv('DB_URI'):
+    db_uri = os.getenv('DB_URI')
+else:
+    db_uri = 'postgresql://postgres:password@localhost:5432/neuralworks'
 
 engine = create_engine(db_uri)
 Session = sessionmaker(bind=engine)
 
-r = redis.Redis(host='localhost', port=6379, db=0)
+if os.getenv('REDIS_HOST'):
+    redis_host = os.getenv('REDIS_HOST')
+else:
+    redis_host = 'localhost'
+    
+if os.getenv('REDIS_PORT'):
+    redis_port = os.getenv('REDIS_PORT')
+else:
+    redis_port = 6379
+    
+if os.getenv('REDIS_DB'):
+    redis_db = os.getenv('REDIS_DB')
+else:
+    redis_db = 0
+
+r = redis.Redis(host=redis_host, port=redis_port, db=redis_db)
 
 # redis ingestion status values:
 # 0: no ingestion in progress
@@ -115,7 +137,7 @@ def get_average_trips():
 @app.route('/trips/ingestion_status', methods=['GET'])
 def get_ingestion_status():
     try:
-        ingestion_status = r.get('ingestion_status')
+        ingestion_status = int(r.get('ingestion_status'))
         
         if ingestion_status == 1:
             return jsonify({'message': 'Ingestion in progress'}), 200
@@ -130,4 +152,4 @@ def get_ingestion_status():
         return jsonify({'message': str(e)}), 500
         
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
